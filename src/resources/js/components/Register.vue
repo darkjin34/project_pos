@@ -1,39 +1,84 @@
 <template>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="alert alert-danger alert dismissable fade show" v-if="error !== null">
-            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="d-flex align-center justify-center" style="height: 100vh">
+        <v-sheet width="400" class="mx-auto">
+            <!-- Alert for errors -->
+            <v-alert v-if="error !== null" type="error" dismissible>
             <strong>{{ error }}</strong>
-          </div>
-          <div class="card mt-5">
-            <div class="card-header">
-              <h3 class="text-center">Register</h3>
-            </div>
-            <div class="card-body">
-              <form @submit.prevent="register">
-                <div class="form-group mb-3">
-                  <label for="name">Name</label>
-                  <input v-model="name" type="text" id="name" class="form-control" placeholder="Enter your name" required />
-                </div>
-                <div class="form-group mb-3">
-                  <label for="email">Email</label>
-                  <input v-model="email" type="email" id="email" class="form-control" placeholder="Enter your email" required />
-                </div>
-                <div class="form-group mb-3">
-                  <label for="password">Password</label>
-                  <input v-model="password" type="password" id="password" class="form-control" placeholder="Enter your password" required />
-                </div>
-                <div class="form-group mb-3">
-                  <label for="password_confirmation">Confirm Password</label>
-                  <input v-model="password_confirmation" type="password" id="password_confirmation" class="form-control" placeholder="Confirm your password" required />
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Register</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+            </v-alert>
+
+            <!-- Logo section
+            <v-card-title class="text-center">
+                <img src="@/assets/logo.png" alt="Logo" class="logo" />
+            </v-card-title> -->
+
+            <!-- Card for Register -->
+            <v-card class="mt-5">
+                <v-card-title class="text-center">
+                    <h3>Register</h3>
+                </v-card-title>
+                <v-card-text>
+                    <v-form @submit.prevent="register">
+
+                    <!-- Name Input -->
+                    <v-text-field
+                        v-model="name"
+                        label="Name"
+                        type="text"
+                        placeholder="Enter your name"
+                        required
+                        outlined
+                        :disabled="isSubmitting"
+                    ></v-text-field>
+
+                    <!-- Email Input -->
+                    <v-text-field
+                        v-model="email"
+                        label="Email"
+                        type="email"
+                        placeholder="Enter your email"
+                        required
+                        outlined
+                        :disabled="isSubmitting"
+                    ></v-text-field>
+
+                    <!-- Password Input -->
+                    <v-text-field
+                        v-model="password"
+                        label="Password"
+                        type="password"
+                        placeholder="Enter your password"
+                        required
+                        outlined
+                        :disabled="isSubmitting"
+                    ></v-text-field>
+
+                    <!-- Password Confirmation Input -->
+                    <v-text-field
+                        v-model="password_confirmation"
+                        label="Password Confirmation"
+                        type="password"
+                        placeholder="Confirm your password"
+                        required
+                        outlined
+                        :disabled="isSubmitting"
+                    ></v-text-field>
+
+                    <!-- Submit Button -->
+                    <v-btn
+                        :loading="isSubmitting"
+                        block
+                        color="primary"
+                        type="submit"
+                    >
+                        {{ buttonText }}
+                    </v-btn>
+                    </v-form>
+                    <div class="mt-2 align-center justify-center">
+                        <p class="text-body-2">Already have an account? <router-link to="/login">Login</router-link></p>
+                    </div>
+                </v-card-text>
+            </v-card>
+        </v-sheet>
     </div>
   </template>
   
@@ -48,31 +93,35 @@ export default {
         email: '',
         password: '',
         password_confirmation: '',
-        error: null
+        error: null,
+        isSubmitting: false,
+        buttonText: 'Register'
       };
   },
   methods: {
-      async register() {
-      try {
-          await axios.get('/sanctum/csrf-cookie'); // Get CSRF cookie
-          const response = await axios.post('/api/register', {
-          name: this.name,
-          email: this.email,
-          password: this.password,
-          password_confirmation: this.password_confirmation,
-          });
-          console.log('Registration successful:', response.data);
-          this.$router.go('/login')
-      } catch (error) {
-          this.error =  error.response?.data.error || 'Registration failed';
-          console.error('Error during registration:', error.response.data);
-      }
-      },
-  },
-  mounted() {
-    if (window.Laravel.isLoggedIn) {
-      this.$router.push('/dashboard');
-    }
-  },
+    async register() {
+        this.isSubmitting = true;
+        this.buttonText = 'Loading...';
+        try {
+            await axios.get('/sanctum/csrf-cookie'); // Get CSRF cookie
+            const response = await axios.post('/api/register', {
+            name: this.name,
+            email: this.email,
+            password: this.password,
+            password_confirmation: this.password_confirmation,
+            });
+            console.log('Registration successful:', response.data);
+            this.$router.go('/login')
+        } catch (error) {
+            this.error =  error.response?.data.error || 'Registration failed';
+            console.error('Error during registration:', error.response.data);
+        }
+    },
+    },
+    mounted() {
+        if (window.Laravel.isLoggedIn) {
+        this.$router.push('/dashboard');
+        }
+    },
 };
 </script>
