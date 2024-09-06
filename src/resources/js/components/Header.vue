@@ -1,9 +1,11 @@
-<template>
-    <v-app-bar app>
-      <v-toolbar-title>My App</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn @click="logout" v-if="isAuthenticated">Logout</v-btn>
-    </v-app-bar>
+  <template>
+      <!-- App Bar (Header) -->
+      <v-app-bar app>
+        <v-app-bar-nav-icon @click="$emit('toggle-sidebar')"></v-app-bar-nav-icon>
+        <v-toolbar-title>POS System</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn @click="logout" v-if="isAuthenticated">Logout</v-btn>
+      </v-app-bar>
   </template>
   
   <script>
