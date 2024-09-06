@@ -1,15 +1,11 @@
 <template>
-    <div class="d-flex align-center justify-center" style="height: 100vh">
+    <div class="d-flex align-center justify-center" style="height: 100vh; padding-top: 10%">
         <v-sheet width="400" class="mx-auto">
             <!-- Card with logo and login form -->
             <v-card class="mt-5" elevation="3">
                 <!-- Logo section -->
                 <v-card-title class="text-center">
-                    <img src="/images/logo.png" alt="Logo" class="logo" />
-                </v-card-title>
-
-                <v-card-title class="text-center">
-                    <h3>Login</h3>
+                    <img :src="logo" alt="Logo" class="logo" />
                 </v-card-title>
                 <!-- Login Form -->
                 <v-card-text>
@@ -27,7 +23,6 @@
                     <v-text-field
                         v-model="password"
                         label="Password"
-                        :rules="passwordRules"
                         type="password"
                         placeholder="Enter your password"
                         outlined
@@ -52,7 +47,8 @@
 </template>
   
   <script>
-  
+  import logo from '../../images/logo.png';
+
   export default {
     name: "Login",
     data() {
@@ -67,10 +63,7 @@
                 v => !!v || 'Email is required', // Checks if value exists
                 v => /.+@.+\..+/.test(v) || 'Email must be valid' // Checks for a valid email format
             ],
-            passwordRules: [
-                v => !!v || 'Password is required', // Checks if value exists
-                v => v.length >= 6 || 'Password must be at least 6 characters' // Minimum length requirement
-            ],
+            logo
         };
     },
     methods: {
@@ -91,25 +84,28 @@
                         'X-CSRF-TOKEN': csrfToken
                     }
                 });
-            // After successful login, set the login state
+                // After successful login, set the login state
                 window.Laravel.isLoggedIn = true;
 
                 // Navigate to dashboard
                 this.$router.go('/dashboard');
             } catch (error) {
-            this.error =  error.response?.data.error || 'Login failed';
-            console.error('Error during login:', error.response.data);
+                this.error =  error.response?.data.error || 'Login failed';
+                console.error('Error during login:', error.response.data);
             } finally {
-            this.isSubmitting = false;
-            this.buttonText = 'Submit'; // Or update text based on success/failure
+                this.isSubmitting = false;
+                this.buttonText = 'Submit'; // Or update text based on success/failure
             }
         }
       },
-    },
-    mounted() {
-      if (window.Laravel.isLoggedIn) {
-        this.$router.push('/dashboard');
-      }
     }
   };
   </script>
+
+<style scoped>
+.logo {
+    max-width: 150px;
+    margin-bottom: 20px;
+    padding: 2%;
+}
+</style>
