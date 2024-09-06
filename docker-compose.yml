@@ -1,5 +1,6 @@
 networks:
   laravelvue:
+    driver: bridge
 
 services:
   nginx:
@@ -22,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: laravelvue_php
     volumes:
-      - ./src:/var/www/html
+      - ./src:/var/www/html:cached
     ports:
       - "9000:9000"
     networks:
@@ -64,7 +65,7 @@ services:
     container_name: laravelvue_npm
     user: "1000:1000"
     volumes:
-      - ./src:/var/www/html
+      - ./src:/var/www/html:cached
     working_dir: /var/www/html
     command: /bin/bash -c "npm install && npm run dev"
     ports:
