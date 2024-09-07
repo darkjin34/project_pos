@@ -104,7 +104,7 @@
 
 <style scoped>
 .logo {
-    max-width: 150px;
+    max-width: 200px;
     margin-bottom: 20px;
     padding: 2%;
 }

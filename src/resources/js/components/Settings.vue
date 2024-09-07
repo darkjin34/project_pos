@@ -1,12 +1,12 @@
 <template>
     <div class="row">
-        Welcome to Home
+        Welcome to Settings
     </div>
 </template>
 
 <script>
     export default {
-        name: "Home",
+        name: "Settings",
         data() {
             return {
                 name: ""

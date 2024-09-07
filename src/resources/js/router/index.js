@@ -6,6 +6,7 @@ import Dashboard from '../components/Dashboard.vue';
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import AuthLayout from '../layouts/AuthLayout.vue'
 import UserManagement from '../components/UserManagement.vue';
+import Settings from '../components/Settings.vue';
 
 // Dummy function to check if user is authenticated
 function isAuthenticated() {
@@ -75,6 +76,24 @@ const routes = [
                 path: '',
                 name: 'UserManagement',
                 component: UserManagement,
+            },
+        ],
+        beforeEnter: (to, from, next) => {
+            if (!isAuthenticated()) {
+            next('/login'); // Redirect to login if not authenticated
+            } else {
+            next(); // Proceed to dashboard Users
+            }
+        },
+    },
+    {
+        path: '/dashboard/settings',
+        component: DefaultLayout,
+        children: [
+            {
+                path: '',
+                name: 'Settings',
+                component: Settings,
             },
         ],
         beforeEnter: (to, from, next) => {
