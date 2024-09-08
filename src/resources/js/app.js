@@ -4,6 +4,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import axios from 'axios';
+import store from './store'; 
 
 // Import Vuetify
 import { createVuetify } from 'vuetify';
@@ -19,6 +20,7 @@ const app = createApp(App);
 app.config.globalProperties.$axios = axios;
 
 app.use(router);
-app.use(vuetify); // Use Vuetify in your app
+app.use(vuetify);
+app.use(store);
 
 app.mount('#app');

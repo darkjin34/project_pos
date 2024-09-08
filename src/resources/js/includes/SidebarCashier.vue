@@ -35,9 +35,9 @@
             logo,
             // Array of menu items
             menuItems: [
-                { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/dashboard' },
-                { title: 'User Management', icon: 'mdi-account', route: '/dashboard/users' },
-                { title: 'Settings', icon: 'mdi-cog', route: '/dashboard/settings' },
+                { title: 'New Order', icon: 'mdi-view-dashboard', route: '/dashboard' },
+                { title: 'Suspend Order', icon: 'mdi-account', route: '/users' },
+                { title: 'Tender Order', icon: 'mdi-cog', route: '/settings' },
             ],
         };
     }

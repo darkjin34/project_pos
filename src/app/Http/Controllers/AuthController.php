@@ -21,7 +21,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-        ]);
+        ])->assignRole('cashier');
 
         return response()->json(['message' => 'User registered successfully!']);
     }
@@ -32,7 +32,16 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return response()->json(['message' => 'Login successful']);
+            
+            // Optionally, you can return user details or roles
+            $user = Auth::user();
+
+            // Return a successful response with user details or role-based redirect
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'roles' => $user->getRoleNames(), // Optional: If using roles
+            ]);
         }
 
         return response()->json(['error' => 'Invalid credentials'], 401);

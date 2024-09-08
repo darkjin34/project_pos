@@ -3,14 +3,18 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
 import Dashboard from '../components/Dashboard.vue';
+import AdminDashboard from '../components/AdminDashboard.vue';
+
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import AuthLayout from '../layouts/AuthLayout.vue'
+import CashierLayout from '../layouts/CashierLayout.vue'
+
 import UserManagement from '../components/UserManagement.vue';
 import Settings from '../components/Settings.vue';
+import store from '../store';
 
-// Dummy function to check if user is authenticated
 function isAuthenticated() {
-    return window.Laravel.isLoggedIn; // Use your actual session/auth check logic
+    return store.getters.isAuthenticated; // This should use Vuex store getter
 }
 
 const routes = [
@@ -26,9 +30,13 @@ const routes = [
         ],
         beforeEnter: (to, from, next) => {
             if (isAuthenticated()) {
-            next('/dashboard'); // Redirect to dashboard if already logged in
+                if (store.getters.getRoles.includes('admin')) {
+                    next('/admin-dashboard');
+                } else {
+                    next('/dashboard');
+                }
             } else {
-            next(); // Proceed to login
+                next(); // Proceed to login
             }
         },
     },
@@ -44,7 +52,11 @@ const routes = [
         ],
         beforeEnter: (to, from, next) => {
             if (isAuthenticated()) {
-            next('/dashboard'); // Redirect to dashboard if already registered
+                if (store.getters.getRoles.includes('admin')) {
+                    next('/admin-dashboard');
+                } else {
+                    next('/dashboard');
+                }
             } else {
             next(); // Proceed to register
             }
@@ -52,7 +64,7 @@ const routes = [
     },
     {
         path: '/dashboard',
-        component: DefaultLayout,
+        component: CashierLayout,
         children: [
             {
                 path: '',
@@ -60,16 +72,10 @@ const routes = [
                 component: Dashboard,
             },
         ],
-        beforeEnter: (to, from, next) => {
-            if (!isAuthenticated()) {
-            next('/login'); // Redirect to login if not authenticated
-            } else {
-            next(); // Proceed to dashboard
-            }
-        },
+        meta: { requiresAuth: true, role: 'cashier' }
     },
     {
-        path: '/dashboard/users',
+        path: '/users',
         component: DefaultLayout,
         children: [
             {
@@ -78,16 +84,10 @@ const routes = [
                 component: UserManagement,
             },
         ],
-        beforeEnter: (to, from, next) => {
-            if (!isAuthenticated()) {
-            next('/login'); // Redirect to login if not authenticated
-            } else {
-            next(); // Proceed to dashboard Users
-            }
-        },
+        meta: { requiresAuth: true, role: 'admin' }
     },
     {
-        path: '/dashboard/settings',
+        path: '/settings',
         component: DefaultLayout,
         children: [
             {
@@ -96,23 +96,54 @@ const routes = [
                 component: Settings,
             },
         ],
-        beforeEnter: (to, from, next) => {
-            if (!isAuthenticated()) {
-            next('/login'); // Redirect to login if not authenticated
-            } else {
-            next(); // Proceed to dashboard Users
-            }
-        },
+        meta: { requiresAuth: true, role: 'admin' }
+    },
+    {
+        path: '/admin-dashboard',
+        component: DefaultLayout,
+        children: [
+            {
+                path: '',
+                name: 'AdminDashboard',
+                component: AdminDashboard,
+            },
+        ],
+        meta: { requiresAuth: true, role: 'admin' }
     },
     {
         path: '/',
         redirect: '/login', // Default to login if no path is provided
     },
+    {
+        path: '/not-authorized',
+        component: () => import('../components/NotAuthorized.vue'), // Add this if necessary
+        name: 'NotAuthorized',
+    },
+    {
+        path: '/:catchAll(.*)',
+        component: () => import('../components/NotFound.vue'), // 404 component
+        name: 'NotFound',
+    }
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+// Global navigation guard for role-based protection
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!store.getters.isAuthenticated) {
+            next('/login');
+        } else if (to.meta.role && !store.getters.getRoles.includes(to.meta.role)) {
+            next('/not-authorized');
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
 });
 
 export default router;

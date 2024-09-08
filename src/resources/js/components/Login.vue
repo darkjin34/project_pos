@@ -48,6 +48,7 @@
   
   <script>
   import logo from '../../images/logo.png';
+  import { mapActions } from 'vuex';
 
   export default {
     name: "Login",
@@ -67,37 +68,46 @@
         };
     },
     methods: {
-      async login() {
-        if (this.$refs.form.validate()) { 
-            this.isSubmitting = true;
-            this.buttonText = 'Loading...';
-            try {
-            // Retrieve the CSRF token from the meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        ...mapActions(['login', 'logout']),
+        async login() {
+            if (this.$refs.form.validate()) { 
+                this.isSubmitting = true;
+                this.buttonText = 'Loading...';
+                try {
+                // Retrieve the CSRF token from the meta tag
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            await this.$axios.get('/sanctum/csrf-cookie'); // Get CSRF cookie
-            const response = await this.$axios.post('/api/login', {
-                email: this.email,
-                password: this.password,
-            }, {
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                await this.$axios.get('/sanctum/csrf-cookie'); // Get CSRF cookie
+                const response = await this.$axios.post('/api/login', {
+                    email: this.email,
+                    password: this.password,
+                }, {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    });
+                    const { user, roles } = response.data;
+
+                    console.log(response)
+                
+                    // Dispatch Vuex action to set user and roles
+                    this.$store.dispatch('login', { user, roles });
+
+                    if (roles.includes('admin')) {
+                        this.$router.push('/admin-dashboard');
+                    } else {
+                        this.$router.push('/dashboard');
                     }
-                });
-                // After successful login, set the login state
-                window.Laravel.isLoggedIn = true;
 
-                // Navigate to dashboard
-                this.$router.go('/dashboard');
-            } catch (error) {
-                this.error =  error.response?.data.error || 'Login failed';
-                console.error('Error during login:', error.response.data);
-            } finally {
-                this.isSubmitting = false;
-                this.buttonText = 'Submit'; // Or update text based on success/failure
+                } catch (error) {
+                    this.error =  error.response?.data.error || 'Login failed';
+                    console.error('Error during login:', error.response.data);
+                } finally {
+                    this.isSubmitting = false;
+                    this.buttonText = 'Submit'; // Or update text based on success/failure
+                }
             }
-        }
-      },
+        },
     }
   };
   </script>

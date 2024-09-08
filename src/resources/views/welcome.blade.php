@@ -14,20 +14,6 @@
         @vite('resources/js/app.js')
     </head>
     <body class="font-sans antialiased dark:bg-black dark:text-white/50">
-        @if (Auth::check())
-            <script>
-                window.Laravel = {!!json_encode([
-                    'isLoggedIn' => true,
-                    'user' => Auth::user()
-                ])!!}
-            </script>
-        @else
-            <script>
-                window.Laravel = {!!json_encode([
-                    'isLoggedIn' => false
-                ])!!}
-            </script>
-        @endif
         <div id="app"></div>
     </body>
 </html>

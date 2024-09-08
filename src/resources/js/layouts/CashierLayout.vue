@@ -23,7 +23,7 @@
 <script>
     import Header from '@/includes/Header.vue';
     import Footer from '@/includes/Footer.vue';
-    import Sidebar from '@/includes/Sidebar.vue';
+    import Sidebar from '@/includes/SidebarCashier.vue';
 
     export default {
         name: 'DefaultLayout',

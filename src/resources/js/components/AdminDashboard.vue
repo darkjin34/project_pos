@@ -2,8 +2,8 @@
     <v-container>
       <v-row>
         <v-col>
-          <h1>Welcome to the Dashboard <p  v-if="$store.state.user">{{ $store.state.user.name }}</p></h1>
-          <p>This is the main content area of the dashboard.</p>
+          <h1>Welcome to the ADMIN <p  v-if="$store.state.user">{{ $store.state.user.name }}</p><</h1>
+          <p>This is the main content area of the admin dashboard.</p>
           <!-- Add more dashboard content here -->
         </v-col>
       </v-row>
@@ -12,7 +12,7 @@
   
   <script>
   export default {
-    name: 'Dashboard',
+    name: 'AdminDashboard',
   };
   </script>
   

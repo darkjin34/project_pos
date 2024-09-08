@@ -40,6 +40,8 @@ class UserController extends Controller
             'password' => bcrypt($validated['password']),
         ]);
 
+        $user->assignRole('cashier');
+
         return response()->json($user, 201);
     }
 

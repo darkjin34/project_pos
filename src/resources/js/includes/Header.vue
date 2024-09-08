@@ -9,11 +9,11 @@
   </template>
   
   <script>
+  import { mapGetters } from 'vuex';
+
   export default {
     computed: {
-      isAuthenticated() {
-        return !!window.Laravel.isLoggedIn;
-      },
+      ...mapGetters(['isAuthenticated', 'getUser', 'getRoles']),
     },
     methods: {
       logout(e) {
@@ -23,8 +23,8 @@
             .then(response => {
               if(response.data.success) {
                  // After successful login, set the login state
-                window.Laravel.isLoggedIn = false;
-                window.location.href="/"
+                 this.$store.dispatch('logout');
+                 this.$router.push('/login');
               }else{
                 console.log(response)
               }
