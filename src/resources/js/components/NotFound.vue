@@ -1,18 +1,24 @@
 <template>
-    <v-container>
-      <v-row>
-        <v-col>
-          <h1>404 - NOT FOUND</h1>
-        </v-col>
-      </v-row>
-    </v-container>
-  </template>
-  
-  <script>
-  export default {
-    name: 'NotFound',
-  };
-  </script>
-  
-  <style scoped>
-  </style>
+  <div>
+    <h1>404 - Not Found</h1>
+    <v-btn @click="goToDashboard">Go Back to Dashboard</v-btn>
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    goToDashboard() {
+      if (this.$store.getters.isAuthenticated) {
+        if (this.$store.getters.getRoles.includes('admin')) {
+            this.$router.push('/admin-dashboard');
+        } else {
+            this.$router.push('/dashboard');
+        }
+      } else {
+        this.$router.push('/login');
+      }
+    }
+  }
+};
+</script>

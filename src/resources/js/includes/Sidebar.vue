@@ -13,6 +13,8 @@
                 :to="item.route"
                 :exact="true"
                 active-class="active-sidebar-item"
+                color="primary"
+                variant="plain"
             >
                 
                 <!-- Title of the item -->
@@ -37,6 +39,7 @@
             menuItems: [
                 { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/admin-dashboard' },
                 { title: 'User Management', icon: 'mdi-account', route: '/users' },
+                { title: 'Products', icon: 'mdi-account', route: '/products' },
                 { title: 'Settings', icon: 'mdi-cog', route: '/settings' },
             ],
         };

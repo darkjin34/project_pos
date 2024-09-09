@@ -54,4 +54,12 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return response()->json(['message' => 'Logout successful', 'success' => true]);
     }
+
+    public function checkAuth()
+    {
+        if (Auth::check()) {
+            return response()->json(['authenticated' => true, 'user' => Auth::user()]);
+        }
+        return response()->json(['authenticated' => false]);
+    }
 }

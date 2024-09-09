@@ -1,5 +1,6 @@
 import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
+import axios from 'axios';
 
 const store = createStore({
   state: {
@@ -31,6 +32,18 @@ const store = createStore({
     },
     logout({ commit }) {
       commit('LOGOUT');
+    },
+    async checkAuth({ commit }) {
+      try {
+          const response = await axios.get('/api/checkAuth');
+          if (response.data.authenticated) {
+              commit('SET_USER', response.data.user);
+          } else {
+              commit('LOGOUT');
+          }
+      } catch (error) {
+          commit('LOGOUT');
+      }
     }
   },
   getters: {

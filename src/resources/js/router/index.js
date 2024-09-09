@@ -4,6 +4,7 @@ import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
 import Dashboard from '../components/Dashboard.vue';
 import AdminDashboard from '../components/AdminDashboard.vue';
+import Products from '../components/admin/Products.vue';
 
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 import AuthLayout from '../layouts/AuthLayout.vue'
@@ -106,6 +107,18 @@ const routes = [
                 path: '',
                 name: 'AdminDashboard',
                 component: AdminDashboard,
+            },
+        ],
+        meta: { requiresAuth: true, role: 'admin' }
+    },
+    {
+        path: '/products',
+        component: DefaultLayout,
+        children: [
+            {
+                path: '',
+                name: 'Products',
+                component: Products,
             },
         ],
         meta: { requiresAuth: true, role: 'admin' }

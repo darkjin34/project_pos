@@ -13,6 +13,8 @@
                 :to="item.route"
                 :exact="true"
                 active-class="active-sidebar-item"
+                color="primary"
+                variant="plain"
             >
                 
                 <!-- Title of the item -->
