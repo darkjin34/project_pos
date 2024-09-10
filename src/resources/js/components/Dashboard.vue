@@ -2,15 +2,16 @@
     <v-container fluid>
         <h2>Coffee Menu</h2>
         <v-row>
-          <v-col cols="3" v-for="(item, index) in coffeeMenu" :key="index">
+          <v-col cols="3" v-for="(item, index) in products" :key="index">
             <v-card class="pa-4" outlined>
                 <!-- Product Image -->
-                <v-img :src="item.image" height="150px" contain></v-img>
+                <v-img :src="`/storage/${item.image_at}`" height="150px" contain></v-img>
 
                 <!-- Product Details -->
                 <v-card-title class="d-flex justify-space-between">
                   {{ item.name }}
-                  <span class="price">${{ item.price }}</span>
+                  <!-- Show price based on selected size -->
+                  <span class="price">${{ getPriceBySize(item.sizes, selectedSize[index]) }}</span>
                 </v-card-title>
 
                 <v-card-subtitle>
@@ -21,21 +22,30 @@
                 <v-row class="mt-3">
                   <v-col cols="3">Size</v-col>
                   <v-col cols="9">
-                    <v-btn-toggle v-model="selectedSize" class="size-options" mandatory>
-                      <v-btn value="small" class="mx-1" depressed outlined>Small</v-btn>
-                      <v-btn value="large" class="mx-1" depressed outlined>Large</v-btn>
+                    <v-btn-toggle v-model="selectedSize[index]" class="size-options" mandatory>
+                      <!-- Dynamically generate size buttons based on product sizes -->
+                      <v-btn 
+                        v-for="size in item.sizes" 
+                        :key="size.size" 
+                        :value="size.size" 
+                        class="mx-1" 
+                        depressed 
+                        outlined
+                      >
+                        {{ size.size }}
+                      </v-btn>
                     </v-btn-toggle>
                   </v-col>
                 </v-row>
 
-                <!-- Quantity Selector -->
+                <!-- Quantities Selector -->
                 <v-row class="mt-3">
                   <v-col cols="12" class="d-flex align-center justify-space-between">
-                    <v-btn icon @click="decrement">
+                    <v-btn icon @click="decrement(index)">
                       <v-icon>mdi-minus</v-icon>
                     </v-btn>
-                    <span class="mr-1 ml-1">{{ quantity }}</span>
-                    <v-btn icon @click="increment">
+                    <span class="mr-1 ml-1">{{ quantities[index] || 1 }}</span>
+                    <v-btn icon @click="increment(index)">
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                   </v-col>
@@ -47,9 +57,9 @@
                   color="orange"
                   block
                   depressed
-                  @click="addToCart"
+                  @click="addToCart(item.name, getPriceBySize(item.sizes, selectedSize[index]), quantities[index], selectedSize[index], index)"
                 >
-                  {{ addedToCart ? 'Added to cart' : 'Add to cart' }}
+                  {{ addedToCart[index] ? 'Added to cart' : 'Add to cart' }}
                 </v-btn>
               </v-card>
           </v-col>
@@ -62,40 +72,72 @@
     name: 'Dashboard',
     data() {
       return {
-        menuItems: [
-          { title: 'Home page', icon: 'mdi-home' },
-          { title: 'Menu', icon: 'mdi-coffee' },
-          { title: 'My orders', icon: 'mdi-history' },
-          { title: 'Settings', icon: 'mdi-cog' },
-          { title: 'Donate to shelter', icon: 'mdi-heart' },
-        ],
-        coffeeMenu: [
-          { name: 'Cappuccino', price: 4.98, description: 'Delicious cappuccino', image: 'path-to-cappuccino-img' },
-          { name: 'Coffee Latte', price: 5.98, description: 'Smooth latte', image: 'path-to-latte-img' },
-          { name: 'Americano', price: 5.98, description: 'Classic americano', image: 'path-to-americano-img' },
-        ],
-        cartItems: [
-          { name: 'Cappuccino', price: 4.98 },
-          { name: 'Coffee Latte', price: 5.98 },
-        ],
-        total: 10.96,
-        selectedSize: 'small',
-        quantity: 1,
-        addedToCart: false,
+        selectedSize: [],
+        quantities: [],
+        addedToCart: [],
+        products: []
       };
     },
-    methods: {
-      increment() {
-        this.quantity += 1;
-      },
-      decrement() {
-        if (this.quantity > 1) this.quantity -= 1;
-      },
-      addToCart() {
-        this.addedToCart = true;
-        // Logic to add the product to the cart
+    watch: {
+      // Watch products for changes and initialize the data arrays when products are available
+      products: {
+        handler(newProducts) {
+          console.log(newProducts)
+          // Initialize quantities, sizes, and cart status for each product
+          newProducts.forEach((product, index) => {
+            if (this.quantities[index] === undefined) {
+              this.quantities[index] = 1; // Default quantities to 1
+            }
+            if (this.selectedSize[index] === undefined) {
+              this.selectedSize[index] = 'small'; // Default size to 'small'
+            }
+            if (this.addedToCart[index] === undefined) {
+              this.addedToCart[index] = false; // Default not added to cart
+            }
+          });
+        },
+        immediate: true, // Initialize immediately if products already exist
+        deep: true, // Watch for deep changes in the products array
       },
     },
+    methods: {
+      fetchProducts() {
+          this.$axios.get('/api/products')
+              .then(response => {
+                  this.products = response.data;
+              });
+      },
+      getPriceBySize(sizes, selectedSize) {
+        const size = sizes.find(s => s.size === selectedSize);
+        return size ? size.price : 0;
+      },
+      increment(index) {
+        this.quantities[index] += 1;
+      },
+      decrement(index) {
+        if (this.quantities[index] > 1) {
+          this.quantities[index] -= 1;
+        }
+      },
+      addToCart(name, price, quantities, size, index) {
+        const product = {
+          name: name,
+          price: price,
+          quantities: quantities,
+          size: size,
+        };
+
+        // Dispatch the Vuex action to add the order
+        this.$store.dispatch('addOrder', product);
+
+        // Update addedToCart state for this product
+        this.addedToCart[index] = true;
+      },
+    },
+    mounted() {
+      this.fetchProducts();
+      this.$store.dispatch('resetOrder');
+    }
   };
   </script>
   

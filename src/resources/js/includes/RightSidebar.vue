@@ -7,9 +7,9 @@
         >
         <v-sheet class="pa-4" elevation="2">
             <v-list dense>
-            <v-list-item v-for="order in orders" :key="order.name">
-                <v-list-item-title>{{ order.name }}</v-list-item-title>
-                <v-list-item-subtitle>Price: ${{ order.price }}</v-list-item-subtitle>
+            <v-list-item v-for="order in $store.state.orders" :key="order.name">
+                <v-list-item-title>{{ order.name }} - {{ order.size }} </v-list-item-title>
+                <v-list-item-subtitle>Price: ${{ order.price }} X {{ order.quantities }}</v-list-item-subtitle>
             </v-list-item>
             </v-list>
 
@@ -17,7 +17,7 @@
             <v-divider></v-divider>
             <v-row>
             <v-col>Total:</v-col>
-            <v-col class="text-right">${{ total }}</v-col>
+            <v-col class="text-right">${{ totalPrice }}</v-col>
             </v-row>
             <v-row>
             <v-col>Change:</v-col>
@@ -36,16 +36,20 @@
 export default {
   data() {
     return {
-      // Example data
-      orders: [
-        { name: "Order 1", price: 10 },
-        { name: "Order 2", price: 15 },
-      ],
       total: 25,
       change: 5,
       rightDrawer: true
     };
   },
+  computed: {
+      totalPrice() {
+        // Calculate total price based on the items added to the cart
+        return this.$store.state.orders.reduce((total, product, index) => {
+          const quantity = product.quantities || 1; // Default to 1 if not set
+          return total + product.price * quantity;
+        }, 0);
+      },
+    },
   methods: {
     placeOrder() {
       // Handle order placement logic

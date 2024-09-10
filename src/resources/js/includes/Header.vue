@@ -23,7 +23,7 @@
               if(response.data.success) {
                  // After successful login, set the login state
                  this.$store.dispatch('logout');
-                 this.$router.push('/login');
+                 location.reload()
               }else{
                 console.log(response)
               }
