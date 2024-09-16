@@ -27,8 +27,26 @@
                     <v-form @submit.prevent="isEditMode ? updateProduct() : createProduct()">
                         <v-text-field v-model="form.name" label="Name" required></v-text-field>
                         <v-text-field v-model="form.description" label="Description" required></v-text-field>
-                        <v-text-field v-model="form.price" label="Price" required></v-text-field>
                         <v-file-input label="Upload Image" v-model="selectedFile" accept="image/*"  @change="onFileChange"></v-file-input>
+                        <v-divider></v-divider>
+                        
+                        <!-- Sizes with Prices -->
+                        <v-row v-for="(size, index) in form.sizes" :key="index">
+                            <v-col cols="6">
+                                <v-select
+                                    v-model="size.size"
+                                    :items="sizeOptions"
+                                    label="Size"
+                                    required
+                                ></v-select>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-text-field v-model="size.price" label="Price" placeholder="e.g., 5.00" required></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-btn color="primary" @click="addSizeField">Add Size</v-btn>
+                        
+                        <v-divider></v-divider>
                         <v-btn type="submit" color="primary">{{ isEditMode ? 'Update' : 'Create' }}</v-btn>
                     </v-form>
                 </v-card-text>
@@ -56,16 +74,16 @@ export default {
             form: {
                 name: '',
                 description: '',
-                price: ''
+                sizes: [{ size: '', price: '' }]
             },
             selectedFile: null,
             imageUrl: '',
             dialog: false,
             isEditMode: false,
+            sizeOptions: ['small', 'medium', 'large'],
             headers: [
                 { text: 'Name', value: 'name' },
                 { text: 'Description', value: 'description' },
-                { text: 'Price', value: 'price' },
                 { text: 'Actions', value: 'actions', sortable: false }
             ],
             selectedUserId: null
@@ -92,6 +110,9 @@ export default {
                 this.selectedFile = null;
             }
         },
+        addSizeField() {
+            this.form.sizes.push({ size: '', price: '' });
+        },
         async createProduct() {
             console.log(this.selectedFile);
             if (!this.selectedFile || !this.selectedFile.type.match('image.*')) {
@@ -101,7 +122,11 @@ export default {
             let formData = new FormData();
             formData.append('name', this.form.name);
             formData.append('description', this.form.description);
-            formData.append('price', this.form.price);
+            this.form.sizes.forEach((size, index) => {
+                formData.append(`sizes[${index}][size]`, size.size);
+                formData.append(`sizes[${index}][price]`, size.price);
+            });
+    
             if (this.selectedFile) {
                 formData.append('image', this.selectedFile);
             }
@@ -145,7 +170,7 @@ export default {
             this.form = {
                 name: '',
                 description: '',
-                price: ''
+                sizes: [{ size: '', price: '' }]
             };
             this.selectedFile = null;
             this.imageUrl = '';

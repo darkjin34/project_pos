@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->longText('description');
-            $table->string('price');
             $table->longText('image_at');
             $table->rememberToken();
             $table->timestamps();
