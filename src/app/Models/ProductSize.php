@@ -10,7 +10,7 @@ class ProductSize extends Model
 {
     use HasFactory;
     // Define the inverse relationship
-    protected $fillable = ['size', 'price', 'products_id'];
+    protected $fillable = ['size', 'price', 'products_id', 'temperature'];
     public function products()
     {
         return $this->belongsTo(Products::class);

@@ -25,6 +25,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/checkAuth', [AuthController::class, 'checkAuth']);
+Route::get('products/category/{category}', [ProductsController::class, 'getProductsByCategory']);
 
 Route::resource('users', UserController::class);
 Route::resource('products', ProductsController::class);

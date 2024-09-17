@@ -19,20 +19,26 @@
             </v-col>
         </v-row>
 
-        <!-- Create/Edit User Dialog -->
-        <v-dialog v-model="dialog" max-width="500px">
+        <!-- Create/Edit Product Dialog -->
+        <v-dialog v-model="dialog" max-width="600px">
             <v-card>
                 <v-card-title>{{ isEditMode ? 'Edit Product' : 'Create Product' }}</v-card-title>
                 <v-card-text>
                     <v-form @submit.prevent="isEditMode ? updateProduct() : createProduct()">
                         <v-text-field v-model="form.name" label="Name" required></v-text-field>
                         <v-text-field v-model="form.description" label="Description" required></v-text-field>
-                        <v-file-input label="Upload Image" v-model="selectedFile" accept="image/*"  @change="onFileChange"></v-file-input>
+                        <v-select
+                            v-model="form.category"
+                            :items="categoryOptions"
+                            label="Category"
+                            required
+                        ></v-select>
+                        <v-file-input label="Upload Image" v-model="selectedFile" accept="image/*" @change="onFileChange"></v-file-input>
                         <v-divider></v-divider>
-                        
-                        <!-- Sizes with Prices -->
+
+                        <!-- Sizes with Prices and Temperature -->
                         <v-row v-for="(size, index) in form.sizes" :key="index">
-                            <v-col cols="6">
+                            <v-col cols="4">
                                 <v-select
                                     v-model="size.size"
                                     :items="sizeOptions"
@@ -40,8 +46,15 @@
                                     required
                                 ></v-select>
                             </v-col>
-                            <v-col cols="6">
+                            <v-col cols="4">
                                 <v-text-field v-model="size.price" label="Price" placeholder="e.g., 5.00" required></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                                <v-select
+                                    v-model="size.temperature"
+                                    :items="temperatureOptions"
+                                    label="Temperature"
+                                ></v-select>
                             </v-col>
                         </v-row>
                         <v-btn color="primary" @click="addSizeField">Add Size</v-btn>
@@ -50,7 +63,7 @@
                         <v-btn type="submit" color="primary">{{ isEditMode ? 'Update' : 'Create' }}</v-btn>
                     </v-form>
                 </v-card-text>
-                
+
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="secondary" @click="resetForm">Clear Form</v-btn>
@@ -74,16 +87,20 @@ export default {
             form: {
                 name: '',
                 description: '',
-                sizes: [{ size: '', price: '' }]
+                category: '',
+                sizes: [{ size: '', price: '', temperature: '' }]
             },
             selectedFile: null,
             imageUrl: '',
             dialog: false,
             isEditMode: false,
             sizeOptions: ['small', 'medium', 'large'],
+            temperatureOptions: ['hot', 'cold'], // New temperature options
+            categoryOptions: ['coffee', 'dish'], // Category options for coffee or dish
             headers: [
                 { text: 'Name', value: 'name' },
                 { text: 'Description', value: 'description' },
+                { text: 'Category', value: 'category' }, // Added category column
                 { text: 'Actions', value: 'actions', sortable: false }
             ],
             selectedUserId: null
@@ -104,48 +121,47 @@ export default {
         onFileChange(event) {
             const files = event.target.files;
             if (files && files.length > 0) {
-                this.selectedFile = files[0]; // Get the first file
-                console.log('Selected file:', this.selectedFile); // Debugging output
+                this.selectedFile = files[0];
             } else {
                 this.selectedFile = null;
             }
         },
         addSizeField() {
-            this.form.sizes.push({ size: '', price: '' });
+            this.form.sizes.push({ size: '', price: '', temperature: '' });
         },
         async createProduct() {
-            console.log(this.selectedFile);
             if (!this.selectedFile || !this.selectedFile.type.match('image.*')) {
                 alert('Please select a valid image file.');
                 return;
             }
+
             let formData = new FormData();
             formData.append('name', this.form.name);
             formData.append('description', this.form.description);
+            formData.append('category', this.form.category); // Include category
             this.form.sizes.forEach((size, index) => {
                 formData.append(`sizes[${index}][size]`, size.size);
                 formData.append(`sizes[${index}][price]`, size.price);
+                formData.append(`sizes[${index}][temperature]`, size.temperature); // Include temperature
             });
-    
+
             if (this.selectedFile) {
                 formData.append('image', this.selectedFile);
             }
 
             try {
                 const response = await this.$axios.post('/api/products', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 this.imageUrl = `/storage/${response.data.image}`;
+                this.fetchProducts();
                 alert('Product created successfully!');
             } catch (error) {
                 console.error('Error creating the product:', error);
             }
         },
         editProduct(product) {
-            console.log(product)
-            this.form = { ...product};
+            this.form = { ...product };
             this.dialog = true;
             this.isEditMode = true;
             this.selectedUserId = product.id;
@@ -170,7 +186,8 @@ export default {
             this.form = {
                 name: '',
                 description: '',
-                sizes: [{ size: '', price: '' }]
+                category: '',
+                sizes: [{ size: '', price: '', temperature: '' }]
             };
             this.selectedFile = null;
             this.imageUrl = '';

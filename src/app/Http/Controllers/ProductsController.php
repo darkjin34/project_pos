@@ -17,14 +17,6 @@ class ProductsController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -32,9 +24,11 @@ class ProductsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
-            'sizes' => 'required|array', // Validation for sizes array
-            'sizes.*.size' => 'required|string|in:small,medium,large', // Validating size names
-            'sizes.*.price' => 'required|numeric|min:0', // Validating prices
+            'category' => 'required|string|in:coffee,dish', // Added category validation
+            'sizes' => 'required|array',
+            'sizes.*.size' => 'nullable|string|in:small,medium,large',
+            'sizes.*.price' => 'required|numeric|min:0',
+            'sizes.*.temperature' => 'nullable|string|in:hot,cold', // Added temperature validation
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -46,15 +40,17 @@ class ProductsController extends Controller
         $product = Products::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
+            'category' => $validated['category'], // Store category
             'image_at' => $imagePath
         ]);
 
-        // Save sizes with their respective prices
+        // Save sizes with their respective prices and temperatures
         foreach ($validated['sizes'] as $size) {
             ProductSize::create([
                 'products_id' => $product->id,
                 'size' => $size['size'],
-                'price' => $size['price']
+                'price' => $size['price'],
+                'temperature' => $size['temperature'], // Save hot/cold option
             ]);
         }
 
@@ -62,22 +58,6 @@ class ProductsController extends Controller
             'message' => 'Product created successfully!',
             'image' => $imagePath,
         ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        return Products::findOrFail($id);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
@@ -89,9 +69,11 @@ class ProductsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'category' => 'sometimes|required|string|in:coffee,dish', // Added category validation for update
             'sizes' => 'sometimes|array',
             'sizes.*.size' => 'required_with:sizes|string|in:small,medium,large',
             'sizes.*.price' => 'required_with:sizes|numeric|min:0',
+            'sizes.*.temperature' => 'required_with:sizes|string|in:hot,cold', // Validate hot/cold
         ]);
 
         $product->update($validated);
@@ -106,12 +88,23 @@ class ProductsController extends Controller
                 ProductSize::create([
                     'products_id' => $id,
                     'size' => $size['size'],
-                    'price' => $size['price']
+                    'price' => $size['price'],
+                    'temperature' => $size['temperature'], // Update temperature
                 ]);
             }
         }
 
         return response()->json($product);
+    }
+
+    /**
+     * Display a listing of products filtered by category.
+     */
+    public function getProductsByCategory($category)
+    {
+        return Products::with('sizes')
+            ->where('category', $category)
+            ->get();
     }
 
     /**

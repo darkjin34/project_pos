@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description');
             $table->longText('image_at');
+            $table->enum('category', ['coffee', 'dish', 'other']);
             $table->rememberToken();
             $table->timestamps();
         });
