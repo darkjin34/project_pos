@@ -74,18 +74,12 @@
                 this.isSubmitting = true;
                 this.buttonText = 'Loading...';
                 try {
-                // Retrieve the CSRF token from the meta tag
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                 await this.$axios.get('/sanctum/csrf-cookie'); // Get CSRF cookie
                 const response = await this.$axios.post('/api/login', {
                     email: this.email,
                     password: this.password,
-                }, {
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        }
-                    });
+                });
                     const { user, roles } = response.data;
 
                     console.log(response)

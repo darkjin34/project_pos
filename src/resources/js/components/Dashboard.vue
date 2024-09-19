@@ -1,130 +1,162 @@
 <template>
     <v-container fluid>
         <h2>Coffee Menu</h2>
-        <v-row>
-          <v-col cols="3" v-for="(item, index) in products" :key="index">
-            <v-card class="pa-4" outlined>
-                <!-- Product Image -->
-                <v-img :src="`/storage/${item.image_at}`" height="150px" contain></v-img>
-
-                <!-- Product Details -->
-                <v-card-title class="d-flex justify-space-between">
-                  {{ item.name }}
-                  <!-- Show price based on selected size -->
-                  <span class="price">${{ getPriceBySize(item.sizes, selectedSize[index]) }}</span>
-                </v-card-title>
-
-                <v-card-subtitle>
-                  {{ item.description }}
-                </v-card-subtitle>
-
-                <!-- Size Options -->
-                <v-row class="mt-3">
-                  <v-col cols="3">Size</v-col>
-                  <v-col cols="9">
-                    <v-btn-toggle v-model="selectedSize[index]" class="size-options" mandatory>
-                      <!-- Dynamically generate size buttons based on product sizes -->
-                      <v-btn 
-                        v-for="size in item.sizes" 
-                        :key="size.size" 
-                        :value="size.size" 
-                        class="mx-1" 
-                        depressed 
-                        outlined
-                      >
-                        {{ size.size }}
-                      </v-btn>
-                    </v-btn-toggle>
-                  </v-col>
-                </v-row>
-
-                <!-- Quantities Selector -->
-                <v-row class="mt-3">
-                  <v-col cols="12" class="d-flex align-center justify-space-between">
-                    <v-btn icon @click="decrement(index)">
-                      <v-icon>mdi-minus</v-icon>
-                    </v-btn>
-                    <span class="mr-1 ml-1">{{ quantities[index] || 1 }}</span>
-                    <v-btn icon @click="increment(index)">
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
-                <!-- Add to Cart Button -->
-                <v-btn
-                  class="mt-4 orange lighten-2"
-                  color="orange"
-                  block
-                  depressed
-                  @click="addToCart(item.name, getPriceBySize(item.sizes, selectedSize[index]), quantities[index], selectedSize[index], index)"
-                >
-                  {{ addedToCart[index] ? 'Added to cart' : 'Add to cart' }}
-                </v-btn>
-              </v-card>
-          </v-col>
+    
+        <!-- Category Tabs -->
+        <v-tabs v-model="selectedCategory" background-color="primary" dark>
+            <v-tab v-for="category in categories" :key="category" :value="category">
+            {{ category }}
+            </v-tab>
+        </v-tabs>
+      
+        <v-row  v-for="category in categories" :key="category" :value="category">
+            <v-col cols="4" v-for="(item, index) in filteredProducts" :key="item.id">
+                <div v-if="item.category === category">
+                    <v-card class="pa-4" outlined>
+                        <!-- Product Image -->
+                        <v-img :src="`/storage/${item.image_at}`" height="150px" contain></v-img>
+            
+                        <!-- Product Details -->
+                        <v-card-title class="d-flex justify-space-between">
+                        {{ item.name }}
+                        <!-- Show price based on selected size -->
+                        <span class="price">${{ getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]) }}</span>
+                        </v-card-title>
+            
+                        <v-card-subtitle>{{ item.description }}</v-card-subtitle>
+            
+                        <!-- Size Options -->
+                        <v-row class="mt-3 mr-3">
+                            <v-col cols="3">Size</v-col>
+                            <v-col cols="9">
+                                <v-btn-toggle v-model="selectedSize[index]" class="size-options" mandatory>
+                                <v-btn
+                                    v-for="size in uniqueSizes(item.sizes)"
+                                    :key="size"
+                                    :value="size"
+                                    class="mx-1"
+                                    depressed
+                                    outlined
+                                >
+                                    {{ size}}
+                                </v-btn>
+                                </v-btn-toggle>
+                            </v-col>
+                        </v-row>
+            
+                        <!-- Temperature Options (Optional) -->
+                        <v-row class="mt-3 mr-3" v-if="selectedCategory === 'coffee'">
+                            <v-col cols="4">Temperature</v-col>
+                            <v-col cols="5">
+                                <v-btn-toggle v-model="selectedTemperature[index]" class="temperature-options" mandatory>
+                                <v-btn value="hot" class="mx-1" depressed outlined>Hot</v-btn>
+                                <v-btn value="cold" class="mx-1" depressed outlined>Cold</v-btn>
+                                </v-btn-toggle>
+                            </v-col>
+                        </v-row>
+            
+                        <!-- Quantities Selector -->
+                        <v-row class="mt-3 mr-3">
+                            <v-col cols="12" class="d-flex align-center justify-space-between">
+                                <v-btn icon @click="decrement(index)">
+                                <v-icon>mdi-minus</v-icon>
+                                </v-btn>
+                                <span class="mr-2 ml-2">{{ quantities[index] || 1 }}</span>
+                                <v-btn icon @click="increment(index)">
+                                <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+            
+                        <!-- Add to Cart Button -->
+                        <v-btn
+                            class="mt-4 orange lighten-2"
+                            color="orange"
+                            block
+                            depressed
+                            @click="addToCart(item.name, getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]), quantities[index], selectedSize[index], selectedTemperature[index], index)"
+                        >
+                        {{ addedToCart[index] ? 'Added to cart' : 'Add to cart' }}
+                        </v-btn>
+                    </v-card>
+                </div>
+            </v-col>
         </v-row>
-      </v-container>
+    </v-container>
 </template>
   
-  <script>
-  export default {
+<script>
+export default {
     name: 'Dashboard',
     data() {
       return {
         selectedSize: [],
         quantities: [],
         addedToCart: [],
-        products: []
+        products: [],
+        selectedCategory: 'coffee',
+        categories: ['coffee', 'dish', 'others'],
+        selectedTemperature: [],
       };
     },
     watch: {
-      // Watch products for changes and initialize the data arrays when products are available
       products: {
         handler(newProducts) {
-          console.log(newProducts)
-          // Initialize quantities, sizes, and cart status for each product
           newProducts.forEach((product, index) => {
-            if (this.quantities[index] === undefined) {
-              this.quantities[index] = 1; // Default quantities to 1
+            if (!this.quantities[index]) {
+              this.quantities[index] = 1;
             }
-            if (this.selectedSize[index] === undefined) {
-              this.selectedSize[index] = 'small'; // Default size to 'small'
+            if (!this.selectedSize[index]) {
+              this.selectedSize[index] = 'small';
             }
-            if (this.addedToCart[index] === undefined) {
-              this.addedToCart[index] = false; // Default not added to cart
+            if (!this.selectedTemperature[index]) {
+              this.selectedTemperature[index] = 'hot';
+            }
+            if (!this.addedToCart[index]) {
+              this.addedToCart[index] = false;
             }
           });
         },
-        immediate: true, // Initialize immediately if products already exist
-        deep: true, // Watch for deep changes in the products array
+        immediate: true,
+        deep: true,
       },
     },
+    computed: {
+        filteredProducts() {
+            if (!this.selectedCategory) return [];
+            return this.products.filter(product => product.category === this.selectedCategory);
+        },
+    },
     methods: {
-      fetchProducts() {
-          this.$axios.get('/api/products')
-              .then(response => {
-                  this.products = response.data;
-              });
-      },
-      getPriceBySize(sizes, selectedSize) {
-        const size = sizes.find(s => s.size === selectedSize);
-        return size ? size.price : 0;
-      },
-      increment(index) {
-        this.quantities[index] += 1;
-      },
-      decrement(index) {
-        if (this.quantities[index] > 1) {
-          this.quantities[index] -= 1;
-        }
-      },
-      addToCart(name, price, quantities, size, index) {
+        fetchProducts() {
+            this.$axios.get('/api/products').then(response => {
+                this.products = response.data;
+            });
+        },
+        getPriceBySize(sizes, selectedSize, selectedTemperature) {
+            const size = (this.selectedCategory == 'coffee') ? sizes.find(s => s.size === selectedSize && s.temperature === selectedTemperature): sizes.find(s => s.size === selectedSize);
+            return size ? size.price : 0;
+        },
+        uniqueSizes(sizes) {
+            // Extract unique sizes from the sizes array
+            const sizeSet = new Set(sizes.map(s => s.size));
+            return Array.from(sizeSet);
+        },
+        increment(index) {
+            this.quantities[index] += 1;
+        },
+        decrement(index) {
+            if (this.quantities[index] > 1) {
+                this.quantities[index] -= 1;
+            }
+        },
+        addToCart(name, price, quantities, size, temperature, index) {
         const product = {
-          name: name,
-          price: price,
-          quantities: quantities,
-          size: size,
+            name,
+            price,
+            quantities,
+            size,
+            temperature: (this.selectedCategory == 'coffee') ? temperature : 'N/A',
         };
 
         // Dispatch the Vuex action to add the order
@@ -132,21 +164,22 @@
 
         // Update addedToCart state for this product
         this.addedToCart[index] = true;
-      },
+        },
     },
     mounted() {
-      this.fetchProducts();
-      this.$store.dispatch('resetOrder');
-    }
-  };
-  </script>
+        this.fetchProducts();
+        this.$store.dispatch('resetOrder');
+    },
+};
+    </script>
   
-<style scoped>
+  <style scoped>
   .price {
     font-weight: bold;
     color: #f56c42;
   }
-  .size-options {
+  .size-options,
+  .temperature-options {
     display: flex;
   }
-</style>
+  </style>

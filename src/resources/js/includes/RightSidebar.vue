@@ -8,7 +8,7 @@
         <v-sheet class="pa-4" elevation="2">
             <v-list dense>
             <v-list-item v-for="order in $store.state.orders" :key="order.name">
-                <v-list-item-title>{{ order.name }} - {{ order.size }} </v-list-item-title>
+                <v-list-item-title>{{ order.name }} ({{ order.temperature }}) - {{ order.size }} </v-list-item-title>
                 <v-list-item-subtitle>Price: ${{ order.price }} X {{ order.quantities }}</v-list-item-subtitle>
             </v-list-item>
             </v-list>
