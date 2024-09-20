@@ -1,56 +1,106 @@
 <template>
-    <v-navigation-drawer
-        v-model="rightDrawer"
-        right
-        app
-        permanent
-        >
-        <v-sheet class="pa-4" elevation="2">
-            <v-list dense>
-            <v-list-item v-for="order in $store.state.orders" :key="order.name">
-                <v-list-item-title>{{ order.name }} ({{ order.temperature }}) - {{ order.size }} </v-list-item-title>
-                <v-list-item-subtitle>Price: ${{ order.price }} X {{ order.quantities }}</v-list-item-subtitle>
-            </v-list-item>
-            </v-list>
+  <v-navigation-drawer
+    v-model="rightDrawer"
+    location="right"
+    app
+    width="300"
+  >
+    <v-row class="pa-2 mt-4 mr-2">
+      <h1>Cart</h1>
+    </v-row>
+    <!-- Order Type Buttons -->
+    <v-row class="pa-2 mt-4 mr-2">
+      <v-btn-toggle v-model="orderType" mandatory>
+        <v-btn value="delivery" color="primary">Delivery</v-btn>
+        <v-btn value="dine-in">Dine in</v-btn>
+        <v-btn value="take-away">Take away</v-btn>
+      </v-btn-toggle>
+    </v-row>
 
-            <!-- Total and Change -->
-            <v-divider></v-divider>
-            <v-row>
-            <v-col>Total:</v-col>
-            <v-col class="text-right">${{ totalPrice }}</v-col>
-            </v-row>
-            <v-row>
-            <v-col>Change:</v-col>
-            <v-col class="text-right">${{ change }}</v-col>
-            </v-row>
+    <!-- Cart Items -->
+    <v-sheet class="pa-4 mr-2" elevation="2">
+      <v-list dense>
+        <v-list-item v-for="order in $store.state.orders" :key="order.name" class="d-flex">
+          <!-- Product Image -->
+          <v-img :src="`/storage/${order.image}`" max-width="70" max-height="70" class="mr-3"></v-img>
+          <!-- Product Details -->
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ order.name }} <span v-if="order.temperature">({{ order.temperature }})</span>
+            </v-list-item-title>
+            <v-list-item-subtitle>{{ order.size }}</v-list-item-subtitle>
+          </v-list-item-content>
 
-            <!-- Place Order Button -->
-            <v-btn class="mt-4" color="primary" @click="placeOrder">
-            Place Order
-            </v-btn>
-        </v-sheet>
-    </v-navigation-drawer>
+          <!-- Price and Quantity Controls -->
+          <v-list-item-content>
+            <v-row align="center">
+              <v-col>
+                <span>${{ order.price }}</span>
+              </v-col>
+              <v-col class="text-right d-flex align-center">
+                <v-icon @click="decrement(order)">mdi-minus</v-icon>
+                <span class="mx-2">{{ order.quantities }}</span>
+                <v-icon @click="increment(order)">mdi-plus</v-icon>
+              </v-col>
+            </v-row>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+
+      <!-- Divider -->
+      <v-divider></v-divider>
+
+      <!-- Items and Discounts -->
+      <v-row class="mr-2">
+        <v-col>Items</v-col>
+        <v-col class="text-right">${{ totalItemsPrice }}</v-col>
+      </v-row>
+      <v-row>
+        <v-col>Discounts</v-col>
+        <v-col class="text-right text-success">-${{ discount }}</v-col>
+      </v-row>
+
+      <!-- Total -->
+      <v-row>
+        <v-col>Total</v-col>
+        <v-col class="text-right text-h6 text-primary">${{ totalPrice }}</v-col>
+      </v-row>
+
+      <!-- Place Order Button -->
+      <v-btn class="mt-4" color="orange" @click="placeOrder">
+        Place an order
+      </v-btn>
+    </v-sheet>
+  </v-navigation-drawer>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      total: 25,
-      change: 5,
-      rightDrawer: true
+      rightDrawer: true,
+      orderType: "delivery", // To handle the order type
+      discount: 0, // Example discount
     };
   },
   computed: {
-      totalPrice() {
-        // Calculate total price based on the items added to the cart
-        return this.$store.state.orders.reduce((total, product, index) => {
-          const quantity = product.quantities || 1; // Default to 1 if not set
-          return total + product.price * quantity;
-        }, 0);
-      },
+    totalItemsPrice() {
+      return this.$store.state.orders.reduce((total, product) => {
+        const quantity = product.quantities || 1; // Default to 1 if not set
+        return total + product.price * quantity;
+      }, 0);
     },
+    totalPrice() {
+      return this.totalItemsPrice - this.discount;
+    },
+  },
   methods: {
+    increment(order) {
+      order.quantities += 1;
+    },
+    decrement(order) {
+      if (order.quantities > 1) order.quantities -= 1;
+    },
     placeOrder() {
       // Handle order placement logic
       console.log("Order placed!");
@@ -60,5 +110,20 @@ export default {
 </script>
 
 <style scoped>
-/* Add any custom styling if needed */
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: #ff6d00; /* Match the orange for total */
+}
+
+.text-success {
+  color: #00c853; /* Green for discounts */
+}
+
+.mx-2 {
+  margin-left: 8px;
+  margin-right: 8px;
+}
 </style>

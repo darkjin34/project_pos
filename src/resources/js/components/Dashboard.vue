@@ -74,7 +74,7 @@
                             color="orange"
                             block
                             depressed
-                            @click="addToCart(item.name, getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]), quantities[index], selectedSize[index], selectedTemperature[index], index)"
+                            @click="addToCart(item.name, getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]), quantities[index], selectedSize[index], selectedTemperature[index], index, item.image_at)"
                         >
                         {{ addedToCart[index] ? 'Added to cart' : 'Add to cart' }}
                         </v-btn>
@@ -150,13 +150,14 @@ export default {
                 this.quantities[index] -= 1;
             }
         },
-        addToCart(name, price, quantities, size, temperature, index) {
+        addToCart(name, price, quantities, size, temperature, index, image) {
         const product = {
             name,
             price,
             quantities,
             size,
             temperature: (this.selectedCategory == 'coffee') ? temperature : 'N/A',
+            image
         };
 
         // Dispatch the Vuex action to add the order
