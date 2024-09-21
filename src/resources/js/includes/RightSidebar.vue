@@ -5,34 +5,31 @@
     app
     width="300"
   >
-    <v-row class="pa-2 mt-4 mr-2">
+    <v-row class="pa-2 mx-2 mt-2">
       <h1>Cart</h1>
     </v-row>
     <!-- Order Type Buttons -->
-    <v-row class="pa-2 mt-4 mr-2">
+    <v-row class="pa-2 mx-2">
       <v-btn-toggle v-model="orderType" mandatory>
-        <v-btn value="delivery" color="primary">Delivery</v-btn>
-        <v-btn value="dine-in">Dine in</v-btn>
-        <v-btn value="take-away">Take away</v-btn>
+        <v-btn value="delivery" color="primary" size="small">Delivery</v-btn>
+        <v-btn value="dine-in" size="small">Dine in</v-btn>
+        <v-btn value="take-away" size="small">Take away</v-btn>
       </v-btn-toggle>
     </v-row>
 
     <!-- Cart Items -->
-    <v-sheet class="pa-4 mr-2" elevation="2">
+    <v-sheet class="pa-4 mx-2" elevation="2">
       <v-list dense>
-        <v-list-item v-for="order in $store.state.orders" :key="order.name" class="d-flex">
+        <v-list-item v-for="order in $store.state.orders" :key="order.name" class="d-flex mx-1">
           <!-- Product Image -->
           <v-img :src="`/storage/${order.image}`" max-width="70" max-height="70" class="mr-3"></v-img>
           <!-- Product Details -->
-          <v-list-item-content>
             <v-list-item-title>
               {{ order.name }} <span v-if="order.temperature">({{ order.temperature }})</span>
             </v-list-item-title>
             <v-list-item-subtitle>{{ order.size }}</v-list-item-subtitle>
-          </v-list-item-content>
 
           <!-- Price and Quantity Controls -->
-          <v-list-item-content>
             <v-row align="center">
               <v-col>
                 <span>${{ order.price }}</span>
@@ -43,7 +40,6 @@
                 <v-icon @click="increment(order)">mdi-plus</v-icon>
               </v-col>
             </v-row>
-          </v-list-item-content>
         </v-list-item>
       </v-list>
 
@@ -67,7 +63,7 @@
       </v-row>
 
       <!-- Place Order Button -->
-      <v-btn class="mt-4" color="orange" @click="placeOrder">
+      <v-btn class="mt-4" block color="orange" @click="placeOrder">
         Place an order
       </v-btn>
     </v-sheet>

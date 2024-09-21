@@ -4,12 +4,12 @@
     
         <!-- Category Tabs -->
         <v-tabs v-model="selectedCategory" background-color="primary" dark>
-            <v-tab v-for="category in categories" :key="category" :value="category">
+            <v-tab v-for="category in categories" :key="category" :value="category" rounded="lg">
             {{ category }}
             </v-tab>
         </v-tabs>
       
-        <v-row  v-for="category in categories" :key="category" :value="category">
+        <v-row class="mx-2" v-for="category in categories" :key="category" :value="category">
             <v-col cols="4" v-for="(item, index) in filteredProducts" :key="item.id">
                 <div v-if="item.category === category">
                     <v-card class="pa-4" outlined>
@@ -26,7 +26,7 @@
                         <v-card-subtitle>{{ item.description }}</v-card-subtitle>
             
                         <!-- Size Options -->
-                        <v-row class="mt-3 mr-3">
+                        <v-row class="mx-3">
                             <v-col cols="3">Size</v-col>
                             <v-col cols="9">
                                 <v-btn-toggle v-model="selectedSize[index]" class="size-options" mandatory>
@@ -35,8 +35,8 @@
                                     :key="size"
                                     :value="size"
                                     class="mx-1"
-                                    depressed
-                                    outlined
+                                    size="small"
+                                    rounded="lg"
                                 >
                                     {{ size}}
                                 </v-btn>
@@ -45,24 +45,24 @@
                         </v-row>
             
                         <!-- Temperature Options (Optional) -->
-                        <v-row class="mt-3 mr-3" v-if="selectedCategory === 'coffee'">
+                        <v-row class="mx-3" v-if="selectedCategory === 'coffee'">
                             <v-col cols="4">Temperature</v-col>
                             <v-col cols="5">
                                 <v-btn-toggle v-model="selectedTemperature[index]" class="temperature-options" mandatory>
-                                <v-btn value="hot" class="mx-1" depressed outlined>Hot</v-btn>
-                                <v-btn value="cold" class="mx-1" depressed outlined>Cold</v-btn>
+                                <v-btn value="hot" class="mx-1" size="small" rounded="sm">Hot</v-btn>
+                                <v-btn value="cold" class="mx-1" size="small" rounded="sm">Cold</v-btn>
                                 </v-btn-toggle>
                             </v-col>
                         </v-row>
             
                         <!-- Quantities Selector -->
-                        <v-row class="mt-3 mr-3">
+                        <v-row class="mx-3">
                             <v-col cols="12" class="d-flex align-center justify-space-between">
-                                <v-btn icon @click="decrement(index)">
+                                <v-btn icon @click="decrement(index)" size="x-small">
                                 <v-icon>mdi-minus</v-icon>
                                 </v-btn>
-                                <span class="mr-2 ml-2">{{ quantities[index] || 1 }}</span>
-                                <v-btn icon @click="increment(index)">
+                                <span class="mx-2">{{ quantities[index] || 1 }}</span>
+                                <v-btn icon @click="increment(index)" size="x-small">
                                 <v-icon>mdi-plus</v-icon>
                                 </v-btn>
                             </v-col>

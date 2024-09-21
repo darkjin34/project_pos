@@ -24,12 +24,20 @@
                 </v-list-item-title>
             </v-list-item>
         </v-list>
-        </v-navigation-drawer>
-  </template>
+        <template v-slot:append>
+          <div class="pa-2">
+            <v-btn block @click="logout" v-if="isAuthenticated">
+              Logout
+            </v-btn>
+          </div>
+        </template>
+    </v-navigation-drawer>
+</template>
   
   <script>
   import logo from '../../images/logo.png';
-
+  import { mapGetters } from 'vuex';
+  
   export default {
     data() {
         return {
@@ -42,7 +50,29 @@
                 { title: 'Tender Order', icon: 'mdi-cog', route: '/settings' },
             ],
         };
-    }
+    },
+    computed: {
+      ...mapGetters(['isAuthenticated', 'getUser', 'getRoles']),
+    },
+    methods: {
+      logout(e) {
+        e.preventDefault();
+        this.$axios.get('/sanctum/csrf-cookie').then(response => {
+          this.$axios.post('api/logout')
+            .then(response => {
+              if(response.data.success) {
+                 // After successful login, set the login state
+                 this.$store.dispatch('logout');
+                 location.reload()
+              }else{
+                console.log(response)
+              }
+            })
+        }).catch(function (error) {
+          console.error(error)
+        })
+      },
+    },
   };
   </script>
   
