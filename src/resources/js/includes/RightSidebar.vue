@@ -64,8 +64,24 @@
 
       <!-- Place Order Button -->
       <v-btn class="mt-4" block color="orange" @click="placeOrder">
-        Place an order
+        <template v-slot:default>
+          <v-progress-circular
+            v-if="loading"
+            indeterminate
+            color="white"
+            size="20"
+          ></v-progress-circular>
+          <span v-else>Place Order</span>
+        </template>
       </v-btn>
+
+      <!-- Snackbar for success notification -->
+      <v-snackbar v-model="snackbarVisible" timeout="3000">
+        {{ snackbarMessage }}
+      </v-snackbar>
+      <v-overlay :value="loading" absolute>
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
     </v-sheet>
   </v-navigation-drawer>
 </template>
@@ -77,6 +93,9 @@ export default {
       rightDrawer: true,
       orderType: "delivery", // To handle the order type
       discount: 0, // Example discount
+      snackbarVisible: false,
+      snackbarMessage: '',
+      loading: false
     };
   },
   computed: {
@@ -97,9 +116,24 @@ export default {
     decrement(order) {
       if (order.quantities > 1) order.quantities -= 1;
     },
-    placeOrder() {
-      // Handle order placement logic
-      console.log("Order placed!");
+    async placeOrder() {
+      this.loading = true;
+      try {
+        const response = await this.$axios.post('/api/orders', {
+          customer_name: 'Walk-In Customer',
+          total_price: this.totalItemsPrice,
+          order_items: this.$store.state.orders,
+        });
+
+        console.log(response.data.message); // Order placed successfully
+        this.snackbarMessage = response.data.message;
+        this.snackbarVisible = true;
+        this.$store.dispatch('resetOrder');
+      } catch (error) {
+        console.error('Error placing order:', error);
+      } finally {
+        this.loading = false; // Stop the loading spinner
+      }
     },
   },
 };

@@ -20,7 +20,7 @@
                         <v-card-title class="d-flex justify-space-between">
                         {{ item.name }}
                         <!-- Show price based on selected size -->
-                        <span class="price">${{ getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]) }}</span>
+                        <span class="price">${{ getPriceBySize(item.sizes, selectedSize[index], selectedTemperature[index]).price }}</span>
                         </v-card-title>
             
                         <v-card-subtitle>{{ item.description }}</v-card-subtitle>
@@ -135,7 +135,7 @@ export default {
         },
         getPriceBySize(sizes, selectedSize, selectedTemperature) {
             const size = (this.selectedCategory == 'coffee') ? sizes.find(s => s.size === selectedSize && s.temperature === selectedTemperature): sizes.find(s => s.size === selectedSize);
-            return size ? size.price : 0;
+            return size ? size : { price: 0, id: null };
         },
         uniqueSizes(sizes) {
             // Extract unique sizes from the sizes array
@@ -150,13 +150,14 @@ export default {
                 this.quantities[index] -= 1;
             }
         },
-        addToCart(name, price, quantities, size, temperature, index, image) {
+        addToCart(name, sizeDetails, quantities, size, temperature, index, image) {
         const product = {
             name,
-            price,
+            price: sizeDetails.price,
             quantities,
             size,
             temperature: (this.selectedCategory == 'coffee') ? temperature : 'N/A',
+            product_size_id: sizeDetails.id,
             image
         };
 

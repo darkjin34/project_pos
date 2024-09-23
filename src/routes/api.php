@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\OrdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +30,4 @@ Route::get('products/category/{category}', [ProductsController::class, 'getProdu
 
 Route::resource('users', UserController::class);
 Route::resource('products', ProductsController::class);
+Route::post('/orders', [OrdersController::class, 'store']);

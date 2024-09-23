@@ -46,8 +46,8 @@
             // Array of menu items
             menuItems: [
                 { title: 'New Order', icon: 'mdi-view-dashboard', route: '/dashboard' },
-                { title: 'Suspend Order', icon: 'mdi-account', route: '/users' },
-                { title: 'Tender Order', icon: 'mdi-cog', route: '/settings' },
+                { title: 'My Orders', icon: 'mdi-account', route: '/users' },
+                { title: 'History', icon: 'mdi-cog', route: '/settings' },
             ],
         };
     },
