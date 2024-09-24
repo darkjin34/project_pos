@@ -7,59 +7,23 @@ use Illuminate\Http\Request;
 
 class PaymentsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    
+    public function updatePaymentStatus($orderId, Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'payment_status' => 'required|in:paid,unpaid,refunded',
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $payment = Payments::where('order_id', $orderId)->first();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($payment) {
+            $payment->update([
+                'payment_status' => $validated['payment_status'],
+            ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Payments $payments)
-    {
-        //
-    }
+            return response()->json(['message' => 'Payment status updated successfully']);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payments $payments)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Payments $payments)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Payments $payments)
-    {
-        //
+        return response()->json(['message' => 'Payment not found'], 404);
     }
 }

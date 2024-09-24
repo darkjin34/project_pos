@@ -14,6 +14,8 @@ import UserManagement from '../components/UserManagement.vue';
 import Settings from '../components/Settings.vue';
 import store from '../store';
 
+import Orders from '../components/cashier/Orders.vue';
+
 function isAuthenticated() {
     return store.getters.isAuthenticated; // This should use Vuex store getter
 }
@@ -71,6 +73,18 @@ const routes = [
                 path: '',
                 name: 'Dashboard',
                 component: Dashboard,
+            },
+        ],
+        meta: { requiresAuth: true, role: 'cashier' }
+    },
+    {
+        path: '/orders',
+        component: CashierLayout,
+        children: [
+            {
+                path: '',
+                name: 'Orders',
+                component: Orders,
             },
         ],
         meta: { requiresAuth: true, role: 'cashier' }

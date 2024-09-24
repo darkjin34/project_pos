@@ -7,59 +7,22 @@ use Illuminate\Http\Request;
 
 class OrderStatusesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function updateOrderStatus($orderId, Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'status' => 'required|in:pending,in_progress,completed,canceled',
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $orderStatus = Order_statuses::where('order_id', $orderId)->first();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($orderStatus) {
+            $orderStatus->update([
+                'status' => $validated['status'],
+            ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order_statuses $order_statuses)
-    {
-        //
-    }
+            return response()->json(['message' => 'Order status updated successfully']);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order_statuses $order_statuses)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order_statuses $order_statuses)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order_statuses $order_statuses)
-    {
-        //
+        return response()->json(['message' => 'Order not found'], 404);
     }
 }

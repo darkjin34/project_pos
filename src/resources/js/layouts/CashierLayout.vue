@@ -14,8 +14,6 @@
             <router-view />
         </v-container>
         </v-main>
-        
-        <RightSidebar />
 
         <!-- Footer Component -->
         <Footer />
@@ -26,15 +24,13 @@
     import Header from '@/includes/Header.vue';
     import Footer from '@/includes/Footer.vue';
     import Sidebar from '@/includes/SidebarCashier.vue';
-    import RightSidebar from '../includes/RightSidebar.vue';
 
     export default {
         name: 'DefaultLayout',
         components: {
             Header,
             Footer,
-            Sidebar,
-            RightSidebar
+            Sidebar
         }
     };
 </script>

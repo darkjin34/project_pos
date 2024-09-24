@@ -46,7 +46,7 @@
             // Array of menu items
             menuItems: [
                 { title: 'New Order', icon: 'mdi-view-dashboard', route: '/dashboard' },
-                { title: 'My Orders', icon: 'mdi-account', route: '/users' },
+                { title: 'My Orders', icon: 'mdi-account', route: '/orders' },
                 { title: 'History', icon: 'mdi-cog', route: '/settings' },
             ],
         };

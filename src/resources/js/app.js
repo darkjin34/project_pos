@@ -11,6 +11,9 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 
+import { toast } from 'vue3-toastify';
+import "vue3-toastify/dist/index.css"
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -22,5 +25,6 @@ app.config.globalProperties.$axios = axios;
 app.use(router);
 app.use(vuetify);
 app.use(store);
+app.config.globalProperties.$toast = toast;
 
 app.mount('#app');

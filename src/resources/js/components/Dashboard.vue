@@ -82,12 +82,18 @@
                 </div>
             </v-col>
         </v-row>
+        <RightSidebar />
     </v-container>
 </template>
   
 <script>
+import RightSidebar from '../includes/RightSidebar.vue';
+
 export default {
     name: 'Dashboard',
+    components: {
+        RightSidebar
+    },
     data() {
       return {
         selectedSize: [],

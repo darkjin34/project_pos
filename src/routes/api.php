@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\OrderStatusesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +32,8 @@ Route::get('products/category/{category}', [ProductsController::class, 'getProdu
 
 Route::resource('users', UserController::class);
 Route::resource('products', ProductsController::class);
-Route::post('/orders', [OrdersController::class, 'store']);
+Route::resource('orders', OrdersController::class);
+
+Route::put('/orders/{orderId}/payment-status', [PaymentsController::class, 'updatePaymentStatus']);
+
+Route::put('/orders/{orderId}/order-status', [OrderStatusesController::class, 'updateOrderStatus']);

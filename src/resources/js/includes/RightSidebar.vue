@@ -75,10 +75,6 @@
         </template>
       </v-btn>
 
-      <!-- Snackbar for success notification -->
-      <v-snackbar v-model="snackbarVisible" timeout="3000">
-        {{ snackbarMessage }}
-      </v-snackbar>
       <v-overlay :value="loading" absolute>
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
@@ -126,8 +122,12 @@ export default {
         });
 
         console.log(response.data.message); // Order placed successfully
-        this.snackbarMessage = response.data.message;
-        this.snackbarVisible = true;
+        this.$toast(response.data.message, {
+          type: 'success', 
+          position: 'top-right', 
+          timeout: 5000,
+        });
+
         this.$store.dispatch('resetOrder');
       } catch (error) {
         console.error('Error placing order:', error);
